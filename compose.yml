@@ -1,0 +1,9 @@
+name: fotoshow-api
+services:
+  insightface:
+    extends:
+      file: recognition/insightface/compose.yml
+      service: insightface
+    build:
+      context: recognition/insightface
+    env_file: .env

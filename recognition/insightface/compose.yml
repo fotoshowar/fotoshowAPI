@@ -1,0 +1,31 @@
+name: fotoshow-recognition
+services:
+  insightface:
+    build: .
+    image: fotoshow-insightface:latest
+    restart: unless-stopped
+    environment:
+      AI_WORKER_BIND_HOST: 0.0.0.0
+      AI_WORKER_PORT: 54400
+      AI_WORKER_HTTP_BIND_HOST: 0.0.0.0
+      AI_WORKER_HTTP_PORT: 54401
+      AI_THREADS: 1
+    ports:
+      - "${INSIGHTFACE_BIND_IP:-127.0.0.1}:54400:54400"
+      - "${INSIGHTFACE_BIND_IP:-127.0.0.1}:54401:54401"
+    volumes:
+      - "${INSIGHTFACE_MODELS_DIR:-/root/.insightface}:/home/recognition/.insightface:ro"
+    mem_limit: 850m
+    cpus: "0.75"
+    pids_limit: 128
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:54401/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
